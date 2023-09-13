@@ -1,0 +1,56 @@
+import { Container } from "@mui/system";
+import axios from "axios";
+import { Typography, Paper } from "@mui/material";
+
+import React, { useEffect, useState } from "react";
+
+const UserPaid = () => {
+  const [paidRequests, setPaidRequests] = useState([]);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const paidData = async () => {
+      try {
+        const paid = await axios.get(`http://localhost:6034/loan/paid`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPaidRequests(paid.data.paid);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    paidData();
+
+    // eslint-disable-next-line
+  }, []);
+
+  return (
+    <Container>
+      <div className="loan-requests">
+        {paidRequests.map((request, index) => (
+          <Paper
+            key={index}
+            elevation={3}
+            style={{ padding: "20px", margin: "20px 0" }}
+          >
+            <Typography variant="h6" gutterBottom>
+              Loan ID: {request._id}
+            </Typography>
+            <Typography gutterBottom>Amount: ${request.amount}</Typography>
+            <Typography gutterBottom>Term: {request.term} weeks</Typography>
+            <Typography gutterBottom>
+              Date: {request.createdAt.split("T")[0]}
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Status: {request.status}
+            </Typography>
+          </Paper>
+        ))}
+      </div>
+    </Container>
+  );
+};
+
+export default UserPaid;
